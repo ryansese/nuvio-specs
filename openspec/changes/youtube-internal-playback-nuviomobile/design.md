@@ -24,7 +24,7 @@ YouTubio streams for a video come from embedded streams parsed by `MetaDetailsPa
 
 ## Decisions
 
-1. **Recognise by name and URL.** `StreamItem.isNuvioPlayer` (in `features/streams/StreamModels.kt`) is true when `url` is null, `name == "Nuvio Player"` and `externalUrl` is a YouTube watch, shorts, embed, live or `youtu.be` URL with a valid id; add `youtubeVideoId` / `youtubeWatchUrl` helpers. `shouldOpenExternally` is false for it; every other stream is unchanged and `StreamParser` and `MetaDetailsParser` are untouched.
+1. **Recognise by name and URL.** `StreamItem.isNuvioPlayer` (in `features/streams/StreamModels.kt`) is true when `url` is null, `name == "Nuvio Player"` and `externalUrl` is a URL on host `youtu.be`, `youtube.com` or a `*.youtube.com` subdomain (after dropping `www.`) with a watch, shorts, embed, live or `youtu.be` path and a valid video id; add `youtubeVideoId` / `youtubeWatchUrl` helpers. `shouldOpenExternally` is false for it; every other stream is unchanged and `StreamParser` and `MetaDetailsParser` are untouched.
 2. **Resolution and routing.** `openSelectedStream` resolves a Nuvio Player stream through `TrailerPlaybackResolver.resolveFromYouTubeUrl(url, maxHeight = 1080)` into a `PlayerLaunch` before the `shouldOpenExternally` branch, always opens the internal player, shows an error on failure, and never writes to `StreamLinkCacheRepository`. The resolver has a 10-minute cache whose key includes the cap.
 3. **1080p preference.** `resolveFromYouTubeUrl` and the extractor gain an optional `maxHeight`: candidates at or below the cap are kept, otherwise the lowest are used. Store actuals accept and ignore it. Trailers pass no cap.
 4. **Autoplay excluded.** `StreamAutoPlaySelector` must not select a Nuvio Player stream.

@@ -12,7 +12,7 @@ The streams screen SHALL keep every existing add-on group, card, card name and a
 - **THEN** it keeps the existing external (browser) behavior
 
 ### Requirement: Nuvio Player plays in the built-in player
-A stream with no `url`, the exact name `Nuvio Player` and an `externalUrl` that is a YouTube watch, shorts, embed, live or `youtu.be` URL with a valid video id SHALL be recognised as an in-app YouTube stream. Selecting it SHALL resolve the video to a playable URL on-device and play it in the built-in player, without opening a browser or another app and regardless of the internal/external/ask player preference. The card SHALL stay in its add-on group under its own name and description, and torrent and direct-debrid streams SHALL NOT be treated as in-app YouTube streams.
+A stream with no `url`, the exact name `Nuvio Player` and an `externalUrl` that is a URL on host `youtu.be`, `youtube.com` or a `*.youtube.com` subdomain (after dropping `www.`) with a watch, shorts, embed, live or `youtu.be` path and a valid video id SHALL be recognised as an in-app YouTube stream. Selecting it SHALL resolve the video to a playable URL on-device and play it in the built-in player, without opening a browser or another app and regardless of the internal/external/ask player preference. The card SHALL stay in its add-on group under its own name and description, and torrent and direct-debrid streams SHALL NOT be treated as in-app YouTube streams.
 
 #### Scenario: Successful playback
 - **WHEN** the user selects `Nuvio Player` for a YouTube video

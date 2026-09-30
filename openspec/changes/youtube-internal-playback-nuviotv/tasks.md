@@ -1,6 +1,6 @@
 ## 1. Recognition
 
-- [ ] 1.1 Add `Stream.isNuvioPlayer()` and make `isExternal()` false for it in `domain/model/Stream.kt` (exact name `Nuvio Player`, no `url`, no torrent/debrid, valid YouTube video id from `InAppYouTubeExtractor.extractVideoId`); extend `youTubeIdToResolve()` to return the id for it; leave every other stream's behavior unchanged
+- [ ] 1.1 Add `Stream.isNuvioPlayer()` and make `isExternal()` false for it in `domain/model/Stream.kt` (exact name `Nuvio Player`, no `url`, no torrent/debrid, YouTube-host `externalUrl` (`youtu.be`, `youtube.com`, `*.youtube.com`) with a valid video id from `InAppYouTubeExtractor.extractVideoId`); extend `youTubeIdToResolve()` to return the id for it; leave every other stream's behavior unchanged
 - [ ] 1.2 Add cases to `StreamYouTubeTest` (name match, other name with same URL, non-YouTube URL, `url` present, torrent and debrid, channel page URL)
 
 ## 2. Routing and resolution
