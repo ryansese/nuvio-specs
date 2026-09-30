@@ -3,13 +3,13 @@
 	url = https://github.com/ryansese/plexio.git
 [submodule "repos/NuvioTV"]
 	path = repos/NuvioTV
-	url = https://github.com/NuvioMedia/NuvioTV.git
+	url = https://github.com/ryansese/NuvioTV.git
 [submodule "repos/NuvioMobile"]
 	path = repos/NuvioMobile
-	url = https://github.com/NuvioMedia/NuvioMobile.git
+	url = https://github.com/ryansese/NuvioMobile.git
 [submodule "repos/NuvioDesktop"]
 	path = repos/NuvioDesktop
-	url = https://github.com/NuvioMedia/NuvioDesktop.git
+	url = https://github.com/ryansese/NuvioDesktop.git
 [submodule "repos/YouTubio"]
 	path = repos/YouTubio
-	url = https://github.com/xXCrash2BomberXx/YouTubio.git
+	url = https://github.com/ryansese/YouTubio.git
