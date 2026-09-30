@@ -1,0 +1,5 @@
+schema: spec-driven
+
+context: |
+  Specs for the Nuvio ecosystem. Source code lives in git submodules under repos/:
+  plexio, NuvioTV, NuvioMobile, NuvioDesktop, YouTubio.
