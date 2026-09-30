@@ -1,22 +1,21 @@
-## 1. Detection
+## 1. Recognition
 
-- [ ] 1.1 Extend `Stream.youTubeIdToResolve()` (`domain/model/Stream.kt`) to derive the id from a YouTube `externalUrl` using `InAppYouTubeExtractor.extractVideoId`, for watch, shorts, embed and `youtu.be` forms only
-- [ ] 1.2 Make `Stream.isExternal()` return false for streams detected in 1.1
-- [ ] 1.3 Add cases to `StreamYouTubeTest` for `ytId`, YouTube `externalUrl`, non-YouTube `externalUrl`, torrent and direct-debrid streams
+- [ ] 1.1 Add `Stream.isNuvioPlayer()` and make `isExternal()` false for it in `domain/model/Stream.kt` (exact name `Nuvio Player`, no `url`, no torrent/debrid, YouTube-host `externalUrl` (`youtu.be`, `youtube.com`, `*.youtube.com`) with a valid video id from `InAppYouTubeExtractor.extractVideoId`); extend `youTubeIdToResolve()` to return the id for it; leave every other stream's behavior unchanged
+- [ ] 1.2 Add cases to `StreamYouTubeTest` (name match, other name with same URL, non-YouTube URL, `url` present, torrent and debrid, channel page URL)
 
-## 2. Routing
+## 2. Routing and resolution
 
-- [ ] 2.1 Confirm `openExternalInBrowser` in `StreamScreen.kt` no longer claims detected streams; adjust if it checks the URL rather than `isExternal()`
-- [ ] 2.2 Confirm the same in `PlayerRuntimeControllerStreams.kt` (`openExternalStreamInBrowser`, `switchToSourceStream`, `switchToEpisodeStream`)
-- [ ] 2.3 Verify `StreamAutoPlaySelector` now considers detected streams and add a test
-- [ ] 2.4 Verify player preference handling (Internal / External / Ask) passes the resolved URL to the external player
+- [ ] 2.1 Route Nuvio Player streams through `resolveStreamForPlayback` / `YouTubeStreamResolver` and the existing `routePlayback` path, ignoring the player preference, with `saveLastLink = false`
+- [ ] 2.2 Add an optional maximum height to `YouTubeStreamResolver` and `InAppYouTubeExtractor.extractSingleUrl` (cap, fall back to lowest available) and pass 1080 only for Nuvio Player streams
+- [ ] 2.3 Keep `StreamAutoPlaySelector` from selecting Nuvio Player streams
+- [ ] 2.4 Confirm the resolving indicator and failure message show and the browser is not opened on failure
 
 ## 3. Flavors
 
-- [ ] 3.1 Confirm `full` resolves in-app and `playstore` keeps the watch-page `externalUrl` fallback (`YouTubeStreamResolverTest`)
+- [ ] 3.1 Gate on `AppFeaturePolicy`: `full` plays in-app, `playstore` keeps the watch-page `externalUrl` behavior (`YouTubeStreamResolverTest`)
 
 ## 4. Verification
 
 - [ ] 4.1 Run `./gradlew :app:testFullDebugUnitTest`
-- [ ] 4.2 Run a local YouTubio add-on and confirm a result plays in the internal player on the emulator (add-on host `10.0.2.2`)
-- [ ] 4.3 Confirm failure shows the YouTube resolution failure message and does not open the browser
+- [ ] 4.2 Run a local YouTubio add-on and confirm `External Player` still opens the browser while `Nuvio Player` plays in the internal player on the emulator (add-on host `10.0.2.2`)
+- [ ] 4.3 Confirm 1080p is chosen when available and a lower resolution otherwise

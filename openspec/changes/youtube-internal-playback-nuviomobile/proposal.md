@@ -1,28 +1,22 @@
 ## Why
 
-In NuvioMobile a stream that carries only a `ytId` is silently dropped by `StreamParser`, and a stream whose `externalUrl` is a YouTube link is opened in the browser. YouTube results (for example from a YouTubio add-on) therefore cannot be played inside the app, even though the app already ships an on-device YouTube extractor and a player that supports separate audio, used today only for trailers.
+NuvioMobile drops `ytId`-only streams and opens YouTube `externalUrl` streams in the browser. YouTubio now returns a stream named `Nuvio Player` (`youtube-nuvio-player-stream-youtubio`), and NuvioMobile should play it in its built-in player.
 
 ## What Changes
 
-- Parse `ytId` (and `yt_id:`-prefixed ids) on streams so they are no longer dropped, and recognise YouTube `externalUrl` streams.
-- When a YouTube stream is selected (manually or via autoplay), resolve it with the in-app extractor and start the internal player with the resolved video (and audio) URLs.
-- Obey the existing external-player setting; external launch needs a directly playable muxed/HLS URL, otherwise fall back to the internal player.
-- Pass a "YouTube chunked playback" flag through the player launch so Android avoids googlevideo throttling.
-- Do not persist resolved (short-lived) URLs as the "last used link".
-- Store-distributed builds (Play Store / App Store), where the extractor is stubbed out, keep the current behavior with a clear failure message.
+- Play a stream named exactly `Nuvio Player` whose `externalUrl` is a YouTube video URL (and that has no `url`) in the built-in player when the user selects it, resolving the video on-device instead of opening a browser or another app.
+- Leave every other card unchanged: `External Player` and any other YouTube `externalUrl` card still open the browser, `ytId` handling, autoplay and in-player source switching are unaffected, and no tab or group is added.
+- Prefer 1080p and fall back to lower resolutions for this playback (not for trailers), ignore the internal/external/ask preference for it, and never persist the resolved URL.
+- Keep the previous behavior where in-app YouTube playback is disabled by the build variant.
 
 ## Capabilities
 
 ### New Capabilities
-- `youtube-stream-playback-nuviomobile`: how NuvioMobile (Android and iOS) parses, resolves and plays YouTube streams in the internal player, including preference handling, autoplay, link caching and build-variant gating.
+- `youtube-stream-playback-nuviomobile`: how NuvioMobile recognises and plays the `Nuvio Player` YouTube stream in its built-in player, including the resolution preference and build-variant gating.
 
 ### Modified Capabilities
 
 ## Impact
 
-- `NuvioMobile/composeApp/src/commonMain/.../features/streams/` (`StreamModels.kt`, `StreamParser.kt`, `StreamsScreen.kt`)
-- `commonMain/.../StreamDestination.kt` (`openSelectedStream` and the two autoplay paths)
-- `commonMain/.../features/player/` (`PlayerModels.kt`, `PlayerScreenArgs.kt`, `PlayerEngine.kt`, `ExternalPlayerPlatform.kt`)
-- `commonMain/.../trailer/TrailerPlaybackResolver.kt` and `fullCommonMain` actuals (reused); `androidFull` `YoutubeChunkedDataSourceFactory` (reused)
-- iOS libmpv bridge (`iosApp/iosApp/Player/MPVPlayerBridge.swift`): no change expected, verify
-- Sibling changes: `youtube-internal-playback-nuviotv`, `youtube-internal-playback-nuviodesktop`
+- See `design.md` and `tasks.md` for the affected files in `NuvioMobile`.
+- Depends on `youtube-nuvio-player-stream-youtubio` for the stream. Sibling changes: the other two `youtube-internal-playback-*` changes.
