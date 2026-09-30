@@ -1,42 +1,48 @@
 ## Context
 
-NuvioMobile (`repos/NuvioMobile`, Kotlin Multiplatform: `composeApp` commonMain plus androidMain/iosMain) has no ViewModels; state lives in repositories. The stream path is:
+NuvioMobile (`repos/NuvioMobile`, Kotlin Multiplatform: `composeApp` commonMain plus androidMain/iosMain) has no ViewModels; state lives in repositories. It shares its streams layout with NuvioDesktop. The stream path is:
 
-`StreamParser.parse` (`features/streams/StreamParser.kt:17-64`) -> `StreamItem` -> `StreamsScreen` -> `openSelectedStream` in `StreamDestination.kt` -> either `openExternalStreamUrl` (browser, when `shouldOpenExternally`) or `PlayerLaunch` -> `openExternalPlayback` / `PlayerRoute`.
+`StreamParser.parse` (`features/streams/StreamParser.kt`) -> `StreamItem` -> `StreamsRepository` groups (`AddonStreamGroup` per add-on) -> `StreamsScreen` (`ProviderFilterRow` renders one chip per group; `StreamsUiState.filteredGroups` filters by `selectedFilter`) -> `openSelectedStream` in `StreamDestination.kt` -> either `openExternalStreamUrl` (browser, when `shouldOpenExternally`) or `PlayerLaunch` -> `openExternalPlayback` / `PlayerRoute`.
 
-`StreamParser` (`:33`) drops streams that lack `url`/`infoHash`/`externalUrl`, so `ytId` streams vanish. The app already contains `TrailerPlaybackResolver` (expect in commonMain; `fullCommonMain` actual delegates to `InAppYouTubeExtractor`, store variants return null), `PlayerLaunch.sourceAudioUrl`, and `PlatformPlayerSurface(useYoutubeChunkedPlayback = ...)`, all used for trailers.
+For an add-on such as YouTubio, per-video streams come from embedded streams parsed by `MetaDetailsParser`: `YT-DLP Player <res>` (direct `url`), `External Player` (`externalUrl` = YouTube watch URL), `YT-DLP Channel` / `External Channel` (`externalUrl`, not a video). `ytId`-only entries (`Stremio Player`) are dropped by the parsers today, and the embedded group is titled after its first stream. All of that is existing behavior and is left alone.
+
+The app already contains `TrailerPlaybackResolver` (expect in commonMain; `fullCommonMain` actual delegates to `InAppYouTubeExtractor`, store variants return null), `PlayerLaunch.sourceAudioUrl`, and `PlatformPlayerSurface(useYoutubeChunkedPlayback = ...)`, all used for trailers. The extractor picks the tallest stream (`videoScore` is height-first).
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Make YouTube streams parseable, selectable and playable in the internal player on Android and iOS.
-- Respect the external-player setting.
+- Leave the existing stream lists exactly as they are.
+- Offer in-app playback of YouTube results in a separate **Internal Player** tab on Android and iOS.
+- Prefer 1080p, else the next lower available resolution, for in-app YouTube playback.
 - Reuse the trailer resolver and player plumbing.
 
 **Non-Goals:**
-- No server-side or yt-dlp resolution.
-- No new extractor logic; extractor robustness (age-gated content) is out of scope.
-- No change to trailers.
+- Changing, renaming, reordering or filtering existing groups and cards.
+- Supporting `ytId`-only streams; they remain unlisted.
+- Changing autoplay or the external-player behavior of existing cards.
+- Server-side or yt-dlp resolution, or new extractor logic beyond the resolution cap.
+- Changing trailers.
 
 ## Decisions
 
-1. **Model `ytId` explicitly** on `StreamItem` and add an `isYouTube` helper (true for `ytId` or YouTube `externalUrl`). Update the "has playable source" checks (`StreamModels.kt:113`, `:176`) and card visibility (`StreamsScreen.kt:~874`) so such streams are listed. Alternative: rewrite `ytId` to a watch URL in `externalUrl` at parse time; rejected because it hides intent and would collide with the browser fallback.
-2. **Resolve in `openSelectedStream` before the `shouldOpenExternally` branch**, mirroring how `DirectDebridPlaybackResolver` resolves then re-enters the function, and in both autoplay copies. To avoid divergence, extract one helper used by all three call sites.
-3. **Resolver = `TrailerPlaybackResolver.resolveFromYouTubeUrl(https://www.youtube.com/watch?v=<id>)`.** It already returns `TrailerPlaybackSource(videoUrl, audioUrl?)`, which maps to `PlayerLaunch.sourceUrl` / `sourceAudioUrl`. It has a 10-minute cache, so repeated resolution is cheap.
-4. **External player:** `ExternalPlayerPlaybackRequest` has no audio field. If the resolved source has a separate audio URL, use the internal player; if it is muxed/HLS, pass it to the external player. Adding audio-URL support to external launch is a possible follow-up.
-5. **Add `useYoutubeChunkedPlayback` to `PlayerLaunch` and `PlayerScreenArgs`**, set for resolved YouTube sources; `PlayerScreen` forwards it to `PlatformPlayerSurface`. iOS (libmpv via MPVKit) ignores it.
-6. **Do not write the resolved URL to `StreamLinkCacheRepository`.** Resolved googlevideo URLs expire within hours.
-7. **Store variants** (resolver returns null): keep today's behavior, opening `externalUrl` when present, and show an error otherwise.
+1. **Derived group, not a data change.** `StreamsUiState.displayGroups` returns the original `groups` plus, when applicable, one extra `AddonStreamGroup` (`addonId = "nuvio:internal-player"`, name `Internal Player`). `filteredGroups` and the `ProviderFilterRow` call sites (phone and tablet layouts) read `displayGroups`; repositories and autoplay keep reading `groups`.
+2. **Tab contents.** For every group holding a YouTube `externalUrl` stream (watch, shorts, embed, `live`, `youtu.be`): its direct-URL streams are copied into the tab as they are, and each YouTube stream is added once per add-on and video id as a copy flagged `playInternally = true`. Originals are never removed. The tab is absent when neither exists or when the build has no resolver.
+3. **Per-stream flag.** `StreamItem.playInternally` (default false) makes `isYouTube` true only for the tab's copies; `shouldOpenExternally` is false only for those copies.
+4. **Resolution and routing.** `openSelectedStream` resolves a `playInternally` stream through `TrailerPlaybackResolver.resolveFromYouTubeUrl(url, maxHeight = 1080)` into a `PlayerLaunch` (`sourceUrl` / `sourceAudioUrl`) before the `shouldOpenExternally` branch, always opens the internal player, shows an error on failure, and never writes to `StreamLinkCacheRepository`. The resolver has a 10-minute cache; the cap is part of its key.
+5. **1080p preference.** `resolveFromYouTubeUrl` and the extractor gain an optional `maxHeight`: candidates at or below the cap are kept; if none fit, the lowest available are used. The `iosAppStore` and `androidPlaystore` actuals accept and ignore it. Trailers pass no cap.
+6. **Add `useYoutubeChunkedPlayback` to `PlayerLaunch` and `PlayerScreenArgs`**, set for resolved YouTube sources; `PlayerScreen` forwards it to `PlatformPlayerSurface`. iOS (libmpv via MPVKit) ignores it.
+7. **Store variants** (resolver returns null): no Internal Player tab and no other behavior change.
 
 ## Risks / Trade-offs
 
-- [Store builds cannot resolve] -> unchanged behavior, explicit error for `ytId`-only streams.
+- [Direct results appear in both the original group and the tab] -> intentional so the old list is unchanged; revisit if it confuses users.
+- [Copying direct results by rule (any group with a YouTube `externalUrl` stream) may catch other add-ons] -> limited to groups that also contain a YouTube video link.
 - [Extractor fragility] -> surface an error; the user can pick another stream.
-- [iOS libmpv throttling without chunking] -> verify on device; mitigation is to prefer HLS.
-- [Duplicate autoplay logic drifts] -> single shared helper.
+- [iOS libmpv throttling without chunking, and separate audio on iOS] -> verify on device; mitigation is to prefer HLS.
 - [iOS `full` resolver actual not verified] -> check `iosFull`/`iosMain` sources during implementation; add one if missing.
 
 ## Open Questions
 
-- Should external launch gain an audio-URL field, or is "internal when audio is separate" acceptable?
-- Is a `yt_id:` prefix present in real add-on responses, or only in meta ids? Confirm against a running YouTubio instance.
+- Should the tab's copy of `External Player` keep that name, or be relabelled?
+- Should direct `YT-DLP Player` results be moved out of the original group (list changes) instead of copied?
+- Should the external-player setting ever apply to the tab's entries?

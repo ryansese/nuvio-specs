@@ -1,45 +1,52 @@
 ## ADDED Requirements
 
-### Requirement: YouTube stream parsing
-The stream parser SHALL read `ytId` (and `yt_id:`-prefixed ids) from add-on stream responses and SHALL NOT discard a stream solely because it has no `url`, `infoHash` or `externalUrl` when `ytId` is present. A stream whose `externalUrl` is a YouTube watch, shorts, embed or `youtu.be` URL SHALL be classified as a YouTube stream.
+### Requirement: Existing stream lists are unchanged
+The streams screen SHALL keep every existing group, card, card name and action exactly as before. A stream whose `externalUrl` is a YouTube URL SHALL still be opened in the browser from its original card, `ytId`-only streams SHALL remain unlisted, and autoplay and the external-player setting SHALL behave as before for existing cards.
 
-#### Scenario: ytId-only stream
-- **WHEN** an add-on returns `{"ytId": "<id>"}` with no other source fields
-- **THEN** the stream appears in the stream list as a YouTube stream
+#### Scenario: External Player card
+- **WHEN** the user selects a YouTube `externalUrl` card in its original group
+- **THEN** the link opens in the browser as before
 
-#### Scenario: YouTube externalUrl
-- **WHEN** an add-on returns a stream whose `externalUrl` is `https://www.youtube.com/watch?v=<id>`
-- **THEN** the stream is classified as a YouTube stream and is not opened in the browser by default
+#### Scenario: Group titles
+- **WHEN** a group's title is derived from its first stream
+- **THEN** the title is not changed by this feature
 
-#### Scenario: Other externalUrl
-- **WHEN** an add-on returns a stream with a non-YouTube `externalUrl`
-- **THEN** it keeps the existing open-externally behavior
+### Requirement: Internal Player tab
+The streams screen SHALL show an additional tab named `Internal Player` when the stream list contains a YouTube `externalUrl` stream (watch, shorts, embed, live or `youtu.be`) and the build includes the in-app resolver. The tab SHALL list copies of the direct-URL streams of each group that carries such a stream (for YouTubio, the `YT-DLP Player <resolution>` entries) and one entry per add-on and YouTube video. The tab SHALL be absent when there is nothing to list, and the originals SHALL remain in their own groups.
+
+#### Scenario: YouTubio result
+- **WHEN** an add-on returns `YT-DLP Player 640x360` (direct URL) and `External Player` (YouTube `externalUrl`) for a video
+- **THEN** the tab bar has an `Internal Player` tab listing both the `YT-DLP Player 640x360` entry and one in-app entry for the video, and the original group still lists all its cards
+
+#### Scenario: Duplicate YouTube links
+- **WHEN** the same add-on returns two `externalUrl` streams for the same YouTube video id
+- **THEN** the Internal Player tab lists the video once
+
+#### Scenario: No YouTube content
+- **WHEN** no group carries a YouTube `externalUrl` stream
+- **THEN** no Internal Player tab is shown
 
 ### Requirement: In-app resolution and internal playback
-When a YouTube stream is selected, manually or through autoplay, the app SHALL resolve it with the in-app YouTube resolver and start the internal player with the resolved video URL and, when separate, audio URL.
+When the user selects an in-app YouTube entry in the Internal Player tab, the app SHALL resolve it with the in-app YouTube resolver and start the internal player with the resolved video URL and, when separate, audio URL. Selecting a direct-URL entry in the tab SHALL play it as it does in its original group. Tab entries SHALL always use the internal player.
 
 #### Scenario: Manual selection
-- **WHEN** the user taps a YouTube stream and the external player setting is off
-- **THEN** the video is resolved and the player screen opens with `sourceUrl` and `sourceAudioUrl` set from the result
+- **WHEN** the user taps an in-app YouTube entry in the Internal Player tab
+- **THEN** the video is resolved and the player screen opens with `sourceUrl` and `sourceAudioUrl` set from the result, even if the external-player setting is on
 
-#### Scenario: Autoplay
-- **WHEN** autoplay selects a YouTube stream
-- **THEN** it follows the same resolution and internal playback path
+#### Scenario: Resolution failed
+- **WHEN** the resolver returns no result
+- **THEN** the app shows an error message and does not open the player
 
-#### Scenario: Resolution unavailable or failed
-- **WHEN** the resolver returns no result (failure, or a build where the resolver is a stub)
-- **THEN** the app shows an error message and, for stub builds, falls back to opening the external URL as today
+### Requirement: 1080p preference
+In-app YouTube playback SHALL prefer the tallest available stream at or below 1080p and SHALL fall back to the next lower available resolution when 1080p is not offered. If only streams above 1080p exist, the lowest available SHALL be used. Trailer playback SHALL not be affected.
 
-### Requirement: External player setting is respected
-The app SHALL honor `externalPlayerEnabled` and the per-stream "open in internal/external player" action for YouTube streams. External launch SHALL use a directly playable URL that needs no separate audio track; otherwise the app SHALL use the internal player.
+#### Scenario: 1080p available
+- **WHEN** the video offers 1080p and higher resolutions
+- **THEN** playback uses 1080p
 
-#### Scenario: External player enabled with muxed URL
-- **WHEN** the external player is enabled and the resolver returns a muxed or HLS URL
-- **THEN** the resolved URL is passed to the external player
-
-#### Scenario: External player enabled with separate audio
-- **WHEN** the external player is enabled and the resolver returns separate video and audio URLs
-- **THEN** the app plays the stream in the internal player instead
+#### Scenario: 1080p not available
+- **WHEN** the highest resolution at or below 1080p is 720p
+- **THEN** playback uses 720p
 
 ### Requirement: Chunked playback on Android
 The player launch SHALL carry a flag enabling chunked reads for YouTube media URLs, and the Android player SHALL apply it to avoid throttled downloads. iOS MAY ignore the flag.
@@ -52,12 +59,12 @@ The player launch SHALL carry a flag enabling chunked reads for YouTube media UR
 The app SHALL NOT save a resolved YouTube playback URL to the stream link cache as the last-used link.
 
 #### Scenario: Replaying a YouTube stream
-- **WHEN** the user selects the same YouTube stream again later
+- **WHEN** the user selects the same in-app YouTube entry again later
 - **THEN** it is resolved again rather than played from a cached resolved URL
 
 ### Requirement: Build variant gating
-The resolver is available only in builds that include the in-app extractor. Builds that stub it (Play Store, App Store) SHALL keep the current behavior for YouTube streams.
+The resolver is available only in builds that include the in-app extractor. Builds that stub it (Play Store, App Store) SHALL show no Internal Player tab and SHALL keep the current behavior for YouTube streams.
 
 #### Scenario: Store build
-- **WHEN** a store build selects a YouTube stream
-- **THEN** the stream opens via its external URL as today, without an unhandled error
+- **WHEN** a store build lists a stream with a YouTube `externalUrl`
+- **THEN** no Internal Player tab is shown and the card opens its external URL as today
