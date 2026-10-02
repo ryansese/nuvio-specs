@@ -20,7 +20,7 @@
 
 - [x] 4.1 Install `ffmpeg` in the Dockerfile
 - [x] 4.2 Document the feature, flag and `ffmpeg` requirement in the README
-- [x] 4.3 Bump the version in `package.json`
+- [ ] 4.3 Bump the version in `package.json` when the change is merged to main (not on the feature branch)
 
 ## 5. Verification
 
