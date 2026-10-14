@@ -1,11 +1,11 @@
 ## 1. Detection
 
-- [ ] 1.1 Add a helper that returns true when a raw yt-dlp entry title is `[Deleted video]`, `[Private video]`, missing or empty (trimmed, case-insensitive)
+- [x] 1.1 Add a helper that returns true when a raw yt-dlp entry title is `[Deleted video]`, `[Private video]`, missing or empty (trimmed, case-insensitive)
 
 ## 2. Catalog filter
 
-- [ ] 2.1 Skip unavailable entries in the catalog handler before `parseMeta` applies DeArrow or the `Unknown Title` fallback
-- [ ] 2.2 Return `{ metas: [] }` when every entry is dropped
+- [x] 2.1 Skip unavailable entries in the catalog handler before `parseMeta` applies DeArrow or the `Unknown Title` fallback
+- [x] 2.2 Return `{ metas: [] }` when every entry is dropped
 
 ## 3. Verification
 
