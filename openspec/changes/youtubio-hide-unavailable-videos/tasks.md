@@ -9,10 +9,10 @@
 
 ## 3. Verification
 
-- [ ] 3.1 Run the addon against a playlist that contains a deleted and a private video and confirm both are absent from the catalog response
-- [ ] 3.2 Confirm the remaining entries are unchanged and in the same order
-- [ ] 3.3 Confirm channel and single-video catalogs still return their one item
+- [x] 3.1 Run the addon against a playlist that contains a deleted and a private video and confirm both are absent from the catalog response
+- [x] 3.2 Confirm the remaining entries are unchanged and in the same order
+- [x] 3.3 Confirm channel and single-video catalogs still return their one item
 
 ## 4. Release
 
-- [ ] 4.1 Bump the version in `package.json` when the change is merged to main (not on the feature branch)
+- [x] 4.1 ~~Bump the version in `package.json` when the change is merged to main (not on the feature branch)~~ Skipped: no new release is planned yet, so the version stays as is
