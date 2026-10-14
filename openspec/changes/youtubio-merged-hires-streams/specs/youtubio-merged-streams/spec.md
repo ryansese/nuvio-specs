@@ -20,7 +20,7 @@ Each merged stream entry SHALL be a standard stream object with a single `url`, 
 
 #### Scenario: Consumed by Stremio and Nuvio
 - **WHEN** either client requests streams for a video with merged streams enabled
-- **THEN** the merged entries contain only standard stream fields and an `http(s)` `url` pointing at the addon's mux route
+- **THEN** the merged entries contain only standard stream fields and an `http(s)` `url` pointing at the addon's merged playlist route (`hls` mode) or mux route (`mux` mode)
 
 ### Requirement: Format pairing
 The addon SHALL pair each video-only format with the best available audio-only format, preferring H.264 (`avc1`) video and AAC (`mp4a`) audio, and SHALL fall back to other codecs only when no H.264 format exists at that height.
@@ -33,8 +33,38 @@ The addon SHALL pair each video-only format with the best available audio-only f
 - **WHEN** only VP9 or AV1 video-only formats exist at a height
 - **THEN** the entry for that height uses the available video format with the best audio-only format
 
+### Requirement: Merged HLS playlist route
+In `hls` mode the addon SHALL expose `GET /merged.m3u8` returning an HLS master playlist that references the selected video-only HLS media playlist and audio-only HLS media playlist, and SHALL NOT proxy or re-serve any media segments.
+
+#### Scenario: Master playlist content
+- **WHEN** a client requests `/merged.m3u8` with the video-only and audio-only HLS playlist URLs, resolution, bandwidth and codecs
+- **THEN** the response is an `#EXTM3U` master with an `EXT-X-MEDIA:TYPE=AUDIO` entry whose `URI` is the audio playlist, and an `EXT-X-STREAM-INF` entry with `AUDIO`, `RESOLUTION` and `BANDWIDTH` whose URI is the video playlist
+
+#### Scenario: No media through the addon
+- **WHEN** a player plays a merged entry in `hls` mode
+- **THEN** the playlist and segment requests go to googlevideo hosts directly and the addon serves only the master playlist
+
+#### Scenario: Untrusted playlist URL
+- **WHEN** a request supplies a URL that is not `https` or not on a googlevideo.com host
+- **THEN** the route responds with a 400 status
+
+#### Scenario: Missing HLS pair
+- **WHEN** no video-only or no audio-only HLS format exists for a height
+- **THEN** no `Merged` entry is emitted for that height in `hls` mode
+
+### Requirement: Delivery mode
+The addon SHALL support a per-user delivery mode for merged streams, `hls` (default) or `mux` (a "Proxy Merged Streams" checkbox on the configuration page), and SHALL document that `hls` mode requires the player to share the addon's public IP because googlevideo URLs are IP-bound.
+
+#### Scenario: Default mode
+- **WHEN** merged streams are enabled and no mode is set
+- **THEN** merged entries point at `/merged.m3u8`
+
+#### Scenario: Proxy mode
+- **WHEN** the mode is `mux`
+- **THEN** merged entries point at `/mux`
+
 ### Requirement: Mux route
-The addon SHALL expose `GET /mux` accepting the video and audio source URLs, and SHALL respond with a single media stream that combines them without re-encoding.
+In `mux` mode the addon SHALL expose `GET /mux` accepting the video and audio source URLs, and SHALL respond with a single media stream that combines them without re-encoding.
 
 #### Scenario: Successful mux
 - **WHEN** a client requests `/mux` with valid video and audio URLs
@@ -60,8 +90,8 @@ Merged streams SHALL be controlled by a per-user config flag that defaults to of
 - **THEN** `Merged` entries appear in stream results
 
 ### Requirement: ffmpeg availability
-The addon SHALL require `ffmpeg` for merged streams, and SHALL emit no merged entries when `ffmpeg` is unavailable.
+The addon SHALL require `ffmpeg` for merged streams in `mux` mode only, and SHALL emit no `mux` merged entries when `ffmpeg` is unavailable. `hls` mode SHALL NOT depend on `ffmpeg`.
 
 #### Scenario: ffmpeg missing
-- **WHEN** the flag is on but `ffmpeg` is not found on `PATH`
+- **WHEN** the flag is on, the mode is `mux`, and `ffmpeg` is not found on `PATH`
 - **THEN** merged entries are omitted, the rest of the stream list is returned normally, and an error is logged
