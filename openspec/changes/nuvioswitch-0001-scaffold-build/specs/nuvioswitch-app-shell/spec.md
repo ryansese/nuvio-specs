@@ -23,7 +23,7 @@ Until its feature change lands, each tab SHALL show a centred placeholder with t
 - **THEN** it shows "NuvioSwitch <version>" matching the build's version
 
 ### Requirement: Exit behaviour
-The app SHALL exit when the user presses + (Plus) on Switch, or closes the window or presses Escape on desktop. B on a root tab SHALL NOT exit the app.
+The app SHALL exit when the user presses + (Plus) on Switch, or on desktop closes the window or presses Start on a gamepad. On desktop, Escape acts as B (borealis's keyboard mapping), not as exit. B on a root tab SHALL NOT exit the app.
 
 #### Scenario: Exit on Switch
 - **WHEN** the user presses + anywhere in the shell
