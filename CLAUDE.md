@@ -28,6 +28,6 @@ Nuvio clients (TV, Mobile, Desktop) are Gradle builds; use each repo's own `./gr
 
 ## Working notes
 
-- Per-submodule guidance lives in this repo under `.claude/rules/<submodule>.md`, scoped with `paths:` to `repos/<submodule>/**`. Don't add `CLAUDE.md` files inside the submodules; they are separate repos and would show as untracked.
+- Per-submodule guidance lives in this repo under `.claude/rules/<submodule>.md`, scoped with `paths:` to `repos/<submodule>/**`. Don't add `CLAUDE.md` files inside the submodules; they are separate repos and would show as untracked. The exception is NuvioSwitch, whose `CLAUDE.md` is tracked in its own repo; `.claude/rules/nuvioswitch.md` points to it.
 - Run submodule commands from inside the submodule directory; git operations there affect the submodule's own repo, not this one. Bumping a submodule pointer is a commit in this repo.
 - There is no build, lint, or test command at the workspace root.
