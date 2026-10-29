@@ -30,7 +30,7 @@
 ## 5. CI
 
 - [x] 5.1 Add `.github/workflows/build.yml` with a `switch` job (devkitpro/devkita64 container, `.nro` artifact) and a `desktop` job (macOS, build and `ctest`)
-- [ ] 5.2 Push and confirm both jobs pass
+- [x] 5.2 Push and confirm both jobs pass (run 40911185784 on 875510e: both jobs green, .nro artifact uploaded)
 
 ## 6. Docs and verification
 
