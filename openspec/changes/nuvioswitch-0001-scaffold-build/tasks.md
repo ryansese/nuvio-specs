@@ -36,5 +36,5 @@
 
 - [x] 6.1 Update NuvioSwitch's `CLAUDE.md` with the build, run, test and `nxlink` commands, and the layout of `src/`, `resources/` and `tests/`
 - [x] 6.2 Add a short `README.md` (what it is, how to build, status)
-- [ ] 6.3 Desktop check: build, run, switch through all tabs with keyboard or gamepad, see the theme and the version on Settings
-- [ ] 6.4 Switch check: build the `.nro` and run it on hardware with `nxlink -s` or in an emulator; check tabs and exit with +
+- [x] 6.3 Desktop check: build, run, switch through all tabs with keyboard or gamepad, see the theme and the version on Settings (verified by the user on macOS)
+- [x] 6.4 Switch check: build the `.nro` and run it on hardware with `nxlink -s` or in an emulator; check tabs and exit with + (verified by the user on Switch)

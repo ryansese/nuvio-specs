@@ -7,6 +7,10 @@ App code SHALL be able to ask for a remote image URL to be shown in a borealis `
 - **WHEN** a poster cell asks to load `https://images.metahub.space/poster/medium/tt0111161/img`
 - **THEN** the cell shows the placeholder, and then the poster once it has downloaded
 
+#### Scenario: WebP poster
+- **WHEN** the image URL returns a WebP image, as `images.metahub.space` always does
+- **THEN** it is decoded off the UI thread and shown like a JPEG or PNG
+
 #### Scenario: Broken image
 - **WHEN** the URL returns 404 or data that isn't an image
 - **THEN** the placeholder stays, and nothing crashes

@@ -29,7 +29,7 @@ Borealis constraints that shape this design:
 - HTTP/2, ETag/`If-None-Match` revalidation and response streaming. Playback streaming is handled by mpv in 0008, not by this client.
 - The IPv4-first DNS quirk (`core/network/IPv4FirstDns.kt`). Reconsider it only if IPv6 causes problems on the Switch.
 - Typed stores for specific features; this change only provides the store primitive.
-- Image resizing or format conversion. Images are shown as decoded by borealis.
+- Image resizing. Images are shown at the size they are downloaded.
 
 ## Decisions
 
@@ -77,8 +77,10 @@ Borealis constraints that shape this design:
 - Views call `ImageLoader::cancel(view)` in `prepareForReuse()` and when they're destroyed.
 - Downloads use their own `WorkerPool(4)`, separate from API calls, so posters never starve add-on requests.
 - The memory LRU holds encoded bytes, capped at 32 MB; the disk cache in `cache/images/` is capped at 100 MB.
-- Decoding happens in `setImageFromMem` on the UI thread. Borealis owns the textures, so the loader keeps bytes, not textures.
-- Alternative: decode off-thread with stb_image and upload later. Rejected for now, because borealis has no public API for setting an RGBA buffer.
+- The caches hold encoded bytes, not textures or pixels: borealis owns the textures, and decoded posters are several times larger.
+- JPEG, PNG, GIF and BMP are decoded by nanovg (stb_image) when the texture is created on the UI thread.
+- WebP is decoded with libwebp on an image worker into RGBA, which the UI thread uploads with `nvgCreateImageRGBA` and hands to `Image::innerSetImage`. This is needed because `images.metahub.space`, where Cinemeta posters and backgrounds point, always serves WebP whatever the `Accept` header says, and stb_image can't decode it. A memory-cache hit on a WebP image therefore goes through the pool for decoding instead of being applied at once.
+- libwebp comes from the `switch-libwebp` portlib (already in the devkitPro image) and Homebrew `webp` on macOS, both found with pkg-config.
 
 **8. Testability.** Code with no curl or borealis dependency lives in `src/core/` and is compiled into `NuvioSwitchTests`:
 - the cache-control parser, cache keys and LRU index;

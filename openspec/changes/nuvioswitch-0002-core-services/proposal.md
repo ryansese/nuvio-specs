@@ -36,8 +36,9 @@ None.
 - **Dependencies:**
   - libcurl: the Homebrew/system curl on macOS, the `switch-curl` portlib on Switch, both found through CMake.
   - nlohmann/json from `library/borealis/library/include/borealis/extern/nlohmann`.
+  - libwebp for WebP posters (metahub serves only WebP): the `switch-libwebp` portlib on Switch, Homebrew `webp` on macOS.
   - No new UI libraries.
-- **CI:** the Switch job installs `switch-curl`, which should already be in the devkitPro container, and the macOS job uses the system curl.
+- **CI:** the Switch job installs `switch-curl`, which should already be in the devkitPro container, and the macOS job uses the system curl and installs `webp` with Homebrew.
 - **NuvioTV references:**
   - `core/di/NetworkModule.kt` for the clients, headers, timeouts, the 50 MB caches, the `no-store` on errors and the permissive add-on client;
   - `core/network/SafeApiCall.kt` and `NetworkResult.kt` for how errors are wrapped;
