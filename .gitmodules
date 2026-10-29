@@ -13,3 +13,6 @@
 [submodule "repos/YouTubio"]
 	path = repos/YouTubio
 	url = https://github.com/ryansese/YouTubio.git
+[submodule "repos/NuvioSwitch"]
+	path = repos/NuvioSwitch
+	url = https://github.com/ryansese/NuvioSwitch.git

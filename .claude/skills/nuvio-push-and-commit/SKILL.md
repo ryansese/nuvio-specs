@@ -11,7 +11,7 @@ Commit and push the pending changes in this workspace, writing a proper commit m
 ## Repos involved
 
 - The workspace root (`nuvio-specs`, branch `development`): OpenSpec artifacts under `openspec/`, `.claude/`, `CLAUDE.md`, `.gitmodules`.
-- Submodules under `repos/` (`NuvioTV`, `NuvioMobile`, `NuvioDesktop`, `plexio`, `YouTubio`). Each is its own git repo with its own remote and branch.
+- Submodules under `repos/` (`NuvioTV`, `NuvioMobile`, `NuvioDesktop`, `NuvioSwitch`, `plexio`, `YouTubio`). Each is its own git repo with its own remote and branch.
 
 Commit each repo separately, **submodules first**, then the workspace. Run every git command for a submodule from inside that submodule's directory.
 
@@ -26,7 +26,7 @@ Commit each repo separately, **submodules first**, then the workspace. Run every
    - `.gitmodules` changes are staged only if the user asked.
 
 3. **Write the message from the diff.** Read `git diff --staged` (and `git log --oneline -5` to match the repo's style). Never commit with a placeholder, a generic message ("update", "changes") or one written before reading the diff.
-   - Subject: imperative, at most about 72 characters, describing what changed and why it matters. Follow the repo's existing convention, e.g. Conventional Commits (`feat(streams): ...`, `fix(windows): ...`) in the Nuvio submodules, and plain sentence style in the workspace root.
+   - Subject: imperative, at most about 72 characters, describing what changed and why it matters. Follow the repo's existing convention, e.g. Conventional Commits (`feat(streams): ...`, `fix(windows): ...`) in the Nuvio submodules, `NuvioSwitch-NNNN <task description>` for NuvioSwitch work tied to an OpenSpec change, and plain sentence style in the workspace root.
    - Body (when the change is more than trivial): short paragraphs or bullets on what and why, wrapped near 72 columns.
    - Describe only what is in the staged diff. Mention unverified parts (untested native code, skipped tests) rather than implying they were checked.
    - End the message with the attribution line from the session's system-reminder, if one is present, separated by a blank line.

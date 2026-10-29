@@ -20,13 +20,14 @@ The submodules have different upstreams and ownership. Treat them as read-only r
 | `NuvioTV` | Android TV, Kotlin/Gradle (`app/`, `libmpv-android`, `DV7`, `ffmpeg-decoder-downmix`) | Upstream NuvioMedia |
 | `NuvioMobile` | Kotlin Multiplatform / Compose (`composeApp`, `androidApp`, `iosApp`) | Upstream NuvioMedia |
 | `NuvioDesktop` | Kotlin Multiplatform / Compose, same layout as NuvioMobile plus `desktopSentry` | Upstream NuvioMedia |
+| `NuvioSwitch` | Nintendo Switch homebrew, C++ with devkitPro/libnx, borealis UI (`library/borealis`, nested submodule) and libmpv | The user's own port of NuvioTV (`ryansese/NuvioSwitch`); no app code yet |
 | `plexio` | Python addon (`plexio/`, `pyproject.toml`) plus `frontend/`, Docker/fly.io deploy | Stremio addon bridging Plex; the user's own fork (`ryansese/plexio`) |
 | `YouTubio` | Node.js single-file addon (`addon.js`) | Stremio YouTube addon; third-party upstream |
 
-Nuvio clients (TV, Mobile, Desktop) are Gradle builds; use each repo's own `./gradlew` (e.g. `./gradlew :app:assembleFullDebug` in NuvioTV). See each repo's README and CONTRIBUTING.md for build details. Plexio and YouTubio are Stremio addons, which are a separate addon ecosystem from the Nuvio clients.
+Nuvio clients (TV, Mobile, Desktop) are Gradle builds; use each repo's own `./gradlew` (e.g. `./gradlew :app:assembleFullDebug` in NuvioTV). See each repo's README and CONTRIBUTING.md for build details. NuvioSwitch is the exception: it will be a CMake build (desktop or Switch, chosen by a `PLATFORM_*` flag) and has its own `CLAUDE.md` describing the plan. Plexio and YouTubio are Stremio addons, which are a separate addon ecosystem from the Nuvio clients.
 
 ## Working notes
 
-- Per-submodule guidance lives in this repo under `.claude/rules/<submodule>.md`, scoped with `paths:` to `repos/<submodule>/**`. Don't add `CLAUDE.md` files inside the submodules; they are separate repos and would show as untracked.
+- Per-submodule guidance lives in this repo under `.claude/rules/<submodule>.md`, scoped with `paths:` to `repos/<submodule>/**`. Don't add `CLAUDE.md` files inside the submodules; they are separate repos and would show as untracked. The exception is NuvioSwitch, whose `CLAUDE.md` is tracked in its own repo; `.claude/rules/nuvioswitch.md` points to it.
 - Run submodule commands from inside the submodule directory; git operations there affect the submodule's own repo, not this one. Bumping a submodule pointer is a commit in this repo.
 - There is no build, lint, or test command at the workspace root.

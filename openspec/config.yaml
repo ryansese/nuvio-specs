@@ -2,4 +2,8 @@ schema: spec-driven
 
 context: |
   Specs for the Nuvio ecosystem. Source code lives in git submodules under repos/:
-  plexio, NuvioTV, NuvioMobile, NuvioDesktop, YouTubio.
+  plexio, NuvioTV, NuvioMobile, NuvioDesktop, NuvioSwitch, YouTubio.
+  NuvioSwitch is a C++ Nintendo Switch homebrew port of NuvioTV (devkitPro/libnx,
+  borealis, libmpv, CMake). Its changes are named nuvioswitch-NNNN-<slug>, with the
+  proposal titled "NuvioSwitch-NNNN <task description>"; NNNN increments from 0001
+  and is never reused.
