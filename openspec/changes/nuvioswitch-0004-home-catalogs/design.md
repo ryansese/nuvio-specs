@@ -78,6 +78,18 @@ All of these are unit-tested with fixture responses in `tests/fixtures/catalog/`
 - [Catalogs that require a non-search extra with no default (such as a required `genre`) return errors] → NuvioTV shows these and lets them fail. We do the same, so the failed row is hidden.
 - [Hero quality without TMDB] → Cinemeta items include backgrounds and logos, so this is good enough until 0017.
 
+## Known issues
+
+- **Vertical scrolling on Home still lags on the Switch** (found in 5.4, 2026-10-30).
+  - Borealis only culls leaf views. Every row and poster is a nested `Box`, so at first all posters of all rows were drawn on every frame.
+  - `ViewportBox` (`src/ui/common/viewport_box.hpp`) now draws only the rows and posters that overlap the scrolling area. That improved things on hardware, but some lag remains.
+  - Not yet measured. Candidates:
+    - Every loaded row keeps all of its cells (up to about 100 views each) in the layout tree, so Yoga re-lays out more than the screen shows.
+    - The labels are measured and drawn each frame.
+    - Textures are released and reloaded when a row crosses the release distance.
+    - A first page arriving and being laid out during scrolling.
+  - Possible fixes: a recycler per row as planned above, fewer cells built per row until it scrolls, or tuning `RELEASE_DISTANCE`. Revisit before Home gets more rows (0009 Continue Watching) or Search reuses the rows (0005).
+
 ## Open Questions
 
 - Should catalogs whose required extra (other than `search`) has a `default` or `options` be requested with that default instead of failing? NuvioTV doesn't, and the proposal keeps parity. Revisit if real add-ons hit this.
