@@ -1,4 +1,8 @@
-## ADDED Requirements
+## Purpose
+
+TBD: Define NuvioSwitch Stream picker: which add-ons are asked for streams, how responses are merged, ordered and de-duplicated, playability rules, the picker UI, and the data handed to the player.
+
+## Requirements
 
 ### Requirement: Stream add-on selection
 For a given type and video ID, the app SHALL query every enabled add-on that has a `stream` resource whose `types` is empty or contains the type, and whose ID prefixes (from the `stream` resource if it declares any, otherwise from the add-on) are empty or include a prefix the video ID starts with. All selected add-ons SHALL be queried in parallel.
@@ -55,7 +59,7 @@ Each stream SHALL be shown as a card with its `name` (or `title`, or `descriptio
 - **THEN** the card shows "Torrentio 4K" as its heading and the title lines below it
 
 ### Requirement: Playability
-A stream SHALL be playable when it has an HTTP or HTTPS URL (`url`, else `externalUrl`) that is not a magnet link or `.torrent` URL. Torrent-only streams (an info hash, magnet link or torrent URL and no HTTP URL) SHALL be shown dimmed with a "Needs debrid" label. Streams with only an `externalUrl` web link, or only a `ytId`, SHALL be shown dimmed with an "Unsupported" label. Selecting a non-playable stream SHALL show a short explanation and SHALL NOT open the player.
+A stream SHALL be playable when its `url` is an HTTP or HTTPS URL that is not a `.torrent` URL (an `externalUrl` is never played). Torrent-only streams (an info hash, magnet link, `torrent:` link or `.torrent` URL and no playable `url`) SHALL be shown dimmed with a "Needs debrid" label. Streams with only an `externalUrl` web link, or only a `ytId`, SHALL be shown dimmed with an "Unsupported" label. Selecting a non-playable stream SHALL show a short explanation and SHALL NOT open the player.
 
 #### Scenario: HTTP stream
 - **WHEN** a stream has `url` `https://cdn.example/movie.mp4`
