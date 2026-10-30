@@ -41,7 +41,8 @@ Several screen sections (`HeroSection.kt`, `EpisodesSection.kt`, cast, trailers,
 
 **4. The details screen is its own activity.**
 - `brls::Application::pushActivity(new DetailsActivity(...))` keeps the tab shell's state. B pops it, and borealis restores focus to the poster that opened it.
-- Layout: a full-width backdrop `Image` dimmed with a gradient rectangle. On the left, a column with the logo, metadata line, description and Play button. Below, season tabs (a horizontal box of buttons) and an episode `RecyclerFrame` (vertical list, one cell per episode).
+- Layout: a full-width backdrop `Image` dimmed with a gradient (`Scrim`). On the left, a scrolling column with the logo, metadata line, description and Play button. For series, the right side holds season tabs (a horizontal scrolling row of buttons) and an episode `RecyclerFrame`. The episodes sit beside the hero, not below it, because a `RecyclerFrame` is its own scroll area and a hero tall enough to need scrolling would push it off a 720p screen. A movie's hero takes the full width.
+- Files follow the repo's layout rather than the paths first proposed: the model is in `src/domain/meta.*`, the parser, candidate rules, cache and repository in `src/data/meta/`, and the screen in `src/ui/details/`.
 
 **5. The video ID for Play** follows NuvioTV's rule: movies use `defaultVideoId` or the meta ID; series use the first episode of the selected season. A pure helper is unit-tested. Resuming at a "next up" episode is added by 0009.
 

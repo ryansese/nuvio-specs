@@ -1,4 +1,8 @@
-## ADDED Requirements
+## Purpose
+
+TBD: Define NuvioSwitch Details: opening the details screen from a poster, meta add-on selection and fallback, meta request URLs and caching, the hero section, seasons and episodes, and hand-off to the stream picker.
+
+## Requirements
 
 ### Requirement: Open details from a poster
 Selecting a poster anywhere in the app (Home rows, "see all" grids, Search rows) SHALL open the details screen for that item, passing its ID, type and the base URL of the add-on whose catalog it came from. B on the details screen SHALL return to the previous screen with focus on the same poster.
@@ -66,11 +70,11 @@ The details screen SHALL show the backdrop (falling back to the poster), the log
 - **THEN** the title is shown as text and the rest of the hero is unchanged
 
 ### Requirement: Seasons and episodes
-For items whose metadata has `videos`, the screen SHALL list seasons as tabs in ascending order and the selected season's episodes sorted by episode number. Each episode SHALL show its thumbnail, "S<s>E<e>", title, release date and overview when present. The initially selected season SHALL be the season of the video named by `behaviorHints.defaultVideoId` (if it exists and is not marked unavailable), else the first season greater than 0, else the first season. If no video has a season number, all videos SHALL be shown as one season.
+For items whose metadata has `videos`, the screen SHALL list seasons as tabs in ascending order with specials (season 0) last, and the selected season's episodes sorted by episode number. Each episode SHALL show its thumbnail, "S<s>E<e>", title, release date and overview when present. The initially selected season SHALL be the season of the video named by `behaviorHints.defaultVideoId` (if it exists and is not marked unavailable), else the first season greater than 0, else the first season. If no video has a season number, all videos SHALL be shown as one season.
 
 #### Scenario: Specials not selected first
 - **WHEN** a series has seasons 0, 1 and 2 and no default video
-- **THEN** season 1 is selected and season 0 is still available as a tab
+- **THEN** season 1 is selected and season 0 is still available as the last tab, after season 2
 
 #### Scenario: Unnumbered videos
 - **WHEN** an item's videos have no season or episode numbers
