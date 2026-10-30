@@ -22,4 +22,4 @@
 - [x] 3.1 `ctest --test-dir build_desktop` passes
 - [x] 3.2 Desktop: open a Cinemeta movie and series from Home and Search; check hero fields, season tabs, episode list, B returns focus to the poster, reopening uses the cache
 - [x] 3.3 Desktop: with a broken add-on placed first, check the next candidate is used; with none working, check the error and Retry
-- [ ] 3.4 Switch: build the `.nro` and open a long series (many episodes) on hardware or in an emulator; check scrolling stays smooth and memory is stable
+- [x] 3.4 Switch: build the `.nro` and open a long series (many episodes) on hardware or in an emulator; check scrolling stays smooth and memory is stable
